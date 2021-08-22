@@ -25,7 +25,41 @@ An example of the xml is below:
   </ImageRendition>
     ```
 
-I pursued an outcome without errors, and so I ended up writing a powershell script to achieve what I wanted. The script would check the image renditions, and if an image rendition already existed it would update it, otherwise it would create that image rendition. Example of script below:
+I pursued an outcome without errors, and so I ended up writing a powershell script to achieve what I wanted. The script would check the image renditions, and if an image rendition already existed it would update it, otherwise it would create that image rendition. Example of script below to be run from the CA server:
 
+```
+#checks if an image rendition exists with the given name. If it exists it updates the image rendition with the $height. If it does not exist it will create a new image rendtion with the $height
+function Add-ImageRendition {
+  param (
+    $ImageRenditionName,
+    $Height # I only use a height parameter, leaving the width blank to maintain the image's orgiginal aspect ratio
+  )
+  
+  add-pssnapin microsoft.sharepoint.powershell #move these setup lines outside of the function
+  $site = Get-SPSite $SiteUrl
+  $imageRenditions =  [Microsoft.SharePoint.Publishing.SiteImageRenditions]::GetRenditions($site)
 
-Enter text in [Markdown](http://daringfireball.net/projects/markdown/). Use the toolbar above, or click the **?** button for formatting help.
+  $existingRendition = $imageRenditions | where-Object {$_.Name -eq $ImageRenditionName};
+
+  if($existingRendition -is [array]){
+    Write-Host "Add-ImageRendition found multiple renditions with the name $ImageRenditionName. Existing..."
+    #put some logic here if there are multiple image renditions with the same name. I knew this wouldn't happen in my situation
+    return
+  }
+
+  if($existingRendition -eq $null){ #create the new image rendition if it doesn't already exist
+    $rendition = New-Object Microsoft.SharePoint.Publishing.ImageRendition
+    $rendition.Name = $ImageRenditionName
+    $rendition.Height = $Height
+    $imageRenditions.Add($rendition)
+  }else { #change the image renditions height property if it already exists
+    $existingRendition.Height = $Height
+  }  
+  
+  $imageRenditions.Update() #update the properties
+}
+
+#example calling the function
+Add-ImageRendition -ImageRenditionName "Sample" -Height 75
+```
+
