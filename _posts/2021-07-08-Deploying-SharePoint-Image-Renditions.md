@@ -23,7 +23,7 @@ An example of the xml is below:
       <Version>4</Version>
       <Width>-1</Width>
   </ImageRendition>
-    ```
+```
 
 I pursued an outcome without errors, and so I ended up writing a powershell script to achieve what I wanted. The script would check the image renditions, and if an image rendition already existed it would update it, otherwise it would create that image rendition. Example of script below to be run from the CA server:
 
