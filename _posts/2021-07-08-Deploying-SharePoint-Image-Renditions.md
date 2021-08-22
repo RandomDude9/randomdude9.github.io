@@ -1,5 +1,5 @@
 ---
-published: false
+published: true
 ---
 ## Deploying SharePoint Image Rendtions
 
